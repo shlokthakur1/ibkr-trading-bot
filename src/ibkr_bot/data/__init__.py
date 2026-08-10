@@ -1,4 +1,7 @@
-"""Historical bar fetch/cache, tick-to-bar aggregation, exchange session calendars.
-
-Universe loading (Phase 2) and the IBKR historical-data cache (Phase 6) live here.
+"""Universe loading (Phase 2 — built), historical bar fetch/cache (Phase 6), tick-to-bar
+aggregation and exchange session calendars (Phase 8).
 """
+
+from .universe import Universe, UniverseEntry, load_universe
+
+__all__ = ["Universe", "UniverseEntry", "load_universe"]

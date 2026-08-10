@@ -1,0 +1,68 @@
+# ASX large-cap "quality" universe, v1.
+#
+# Hand-curated and deliberately spread across GICS sectors — this is a direct reaction to the
+# earlier prototype's live basket, which ended up as 4 NZ-electricity-gentailer dual-listings
+# picked purely by backtest P&L with zero diversification constraint (see the repo findings in
+# the delivery plan). A CI test (tests/unit/data/test_universe.py) enforces a max-per-sector cap
+# so that guardrail is structural, not just this comment.
+#
+# Symbols are IBKR-native tickers (exchange=ASX, currency=AUD) — no Yahoo/stooq ".AX"-style
+# suffix needed, since backtesting sources historical bars from IBKR (see plan §2.10).
+#
+# Known, disclosed v1 limitations (not solved here): survivorship bias (today's large caps only,
+# no later-delisted names) and manual/quarterly review cadence (a process, not automation).
+
+as_of_date: 2026-08-09
+review_cadence: quarterly-manual
+source_note: >
+  Hand-curated for sector diversification across ASX large caps as of the date above.
+  Not synced to any index-constituent feed; a future version could pull from a published
+  S&P/ASX index rebalance file instead — out of scope for v1.
+
+entries:
+  # Financials
+  - { symbol: CBA, exchange: ASX, currency: AUD, sector: Financials, name: "Commonwealth Bank of Australia", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: WBC, exchange: ASX, currency: AUD, sector: Financials, name: "Westpac Banking Corporation", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: NAB, exchange: ASX, currency: AUD, sector: Financials, name: "National Australia Bank", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: ANZ, exchange: ASX, currency: AUD, sector: Financials, name: "ANZ Group Holdings", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: MQG, exchange: ASX, currency: AUD, sector: Financials, name: "Macquarie Group", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Materials
+  - { symbol: BHP, exchange: ASX, currency: AUD, sector: Materials, name: "BHP Group", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: RIO, exchange: ASX, currency: AUD, sector: Materials, name: "Rio Tinto", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: FMG, exchange: ASX, currency: AUD, sector: Materials, name: "Fortescue", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: S32, exchange: ASX, currency: AUD, sector: Materials, name: "South32", added_date: 2026-08-09, min_history_years: 8 }
+
+  # Healthcare
+  - { symbol: CSL, exchange: ASX, currency: AUD, sector: Healthcare, name: "CSL Limited", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: RMD, exchange: ASX, currency: AUD, sector: Healthcare, name: "ResMed", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: COH, exchange: ASX, currency: AUD, sector: Healthcare, name: "Cochlear", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: SHL, exchange: ASX, currency: AUD, sector: Healthcare, name: "Sonic Healthcare", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Consumer Staples
+  - { symbol: WOW, exchange: ASX, currency: AUD, sector: "Consumer Staples", name: "Woolworths Group", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: COL, exchange: ASX, currency: AUD, sector: "Consumer Staples", name: "Coles Group", added_date: 2026-08-09, min_history_years: 6 }
+  - { symbol: EDV, exchange: ASX, currency: AUD, sector: "Consumer Staples", name: "Endeavour Group", added_date: 2026-08-09, min_history_years: 4 }
+
+  # Consumer Discretionary
+  - { symbol: WES, exchange: ASX, currency: AUD, sector: "Consumer Discretionary", name: "Wesfarmers", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: JBH, exchange: ASX, currency: AUD, sector: "Consumer Discretionary", name: "JB Hi-Fi", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Industrials
+  - { symbol: TCL, exchange: ASX, currency: AUD, sector: Industrials, name: "Transurban Group", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: BXB, exchange: ASX, currency: AUD, sector: Industrials, name: "Brambles", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Energy
+  - { symbol: WDS, exchange: ASX, currency: AUD, sector: Energy, name: "Woodside Energy Group", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: STO, exchange: ASX, currency: AUD, sector: Energy, name: "Santos", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Telecommunications
+  - { symbol: TLS, exchange: ASX, currency: AUD, sector: Telecommunications, name: "Telstra Group", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Real Estate
+  - { symbol: GMG, exchange: ASX, currency: AUD, sector: "Real Estate", name: "Goodman Group", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: SCG, exchange: ASX, currency: AUD, sector: "Real Estate", name: "Scentre Group", added_date: 2026-08-09, min_history_years: 10 }
+
+  # Utilities
+  - { symbol: AGL, exchange: ASX, currency: AUD, sector: Utilities, name: "AGL Energy", added_date: 2026-08-09, min_history_years: 10 }
+  - { symbol: ORG, exchange: ASX, currency: AUD, sector: Utilities, name: "Origin Energy", added_date: 2026-08-09, min_history_years: 10 }
