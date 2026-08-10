@@ -1,0 +1,30 @@
+# Environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Secrets / local config
+.env
+*.local.yaml
+
+# Runtime data (never committed — see plan §2.9/§2.10)
+data/runs/
+data/cache/
+*.db
+*.sqlite3
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
