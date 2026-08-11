@@ -12,6 +12,23 @@ from .portfolio import ClosedTrade
 TRADING_DAYS_PER_YEAR = 252
 
 
+def return_stats(equity_curve: pd.Series) -> tuple[float, float]:
+    """(total_return_pct, cagr_pct) for any equity-like series — shared by the strategy's own
+    metrics and by benchmark comparison (benchmark.py) so the CAGR formula lives in one place.
+    """
+    num_days = len(equity_curve)
+    period_years = max(num_days - 1, 1) / TRADING_DAYS_PER_YEAR
+    initial = float(equity_curve.iloc[0])
+    final = float(equity_curve.iloc[-1])
+    total_return_pct = (final / initial - 1.0) * 100.0
+    cagr_pct = (
+        ((final / initial) ** (1.0 / period_years) - 1.0) * 100.0
+        if period_years > 0 and initial > 0
+        else float("nan")
+    )
+    return total_return_pct, cagr_pct
+
+
 def compute_metrics(
     equity_curve: pd.Series,
     trades: list[ClosedTrade],
@@ -21,17 +38,7 @@ def compute_metrics(
 ) -> dict:
     """`equity_curve` is a Series of daily equity values indexed by date, oldest first."""
     daily_returns = equity_curve.pct_change().dropna()
-    num_days = len(equity_curve)
-    period_years = max(num_days - 1, 1) / TRADING_DAYS_PER_YEAR
-
-    initial_equity = float(equity_curve.iloc[0])
-    final_equity = float(equity_curve.iloc[-1])
-    total_return_pct = (final_equity / initial_equity - 1.0) * 100.0
-    cagr_pct = (
-        ((final_equity / initial_equity) ** (1.0 / period_years) - 1.0) * 100.0
-        if period_years > 0 and initial_equity > 0
-        else float("nan")
-    )
+    total_return_pct, cagr_pct = return_stats(equity_curve)
 
     daily_std = daily_returns.std(ddof=0)
     annualized_vol_pct = float(daily_std * math.sqrt(TRADING_DAYS_PER_YEAR) * 100.0)

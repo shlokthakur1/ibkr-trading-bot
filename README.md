@@ -6,9 +6,9 @@ Built by cleaning up and reusing what worked from an earlier IBKR prototype rath
 rewriting from scratch — see the architecture/delivery plan this repo follows for the full
 findings, design rationale, and phased build order.
 
-**Status: Phase 0-3 complete** (repo scaffolding, the deterministic strategy engine, the ASX
-large-cap universe, and the backtest engine). Broker connectivity, the dashboard, and live
-trading land in later phases — see "Delivery phases" below.
+**Status: Phase 0-4 complete** (repo scaffolding, the deterministic strategy engine, the ASX
+large-cap universe, the backtest engine, and benchmark comparison). Broker connectivity, the
+dashboard, and live trading land in later phases — see "Delivery phases" below.
 
 ## Strategy v1: buy the dip in a healthy uptrend
 
@@ -38,6 +38,11 @@ next-bar-open; stop-loss/take-profit are detected against each bar's high/low ra
 same-bar tie); when more symbols signal on the same bar than there are free portfolio slots, the
 most-oversold z-score wins, then alphabetical symbol. Outputs an equity curve, a closed-trade
 log, and metrics (CAGR, Sharpe, Sortino, max drawdown, win rate, profit factor).
+
+Pass `benchmark_prices` (a price series, e.g. ASX200) to `BacktestEngine.run()` to add a rebased
+`benchmark_equity` column and `benchmark_total_return_pct`/`benchmark_cagr_pct`/`alpha_cagr_pct`
+to the result — sourcing that price series from IBKR historical data is a Phase 6 concern; the
+alignment/rebasing math (`backtest/benchmark.py`) is already in place and testable on its own.
 
 ## Setup
 
@@ -73,7 +78,7 @@ tests/unit/              mirrors src/ibkr_bot/ — indicator/determinism/golden-
 | 1 | Strategy engine (indicators, signals, determinism tests) — **done** |
 | 2 | Universe definition + core domain types — **done** |
 | 3 | Backtest engine (costs, fills, metrics) — **done** |
-| 4 | Benchmark (ASX200) integration |
+| 4 | Benchmark (ASX200) integration — **done** |
 | 5 | Live local dashboard (FastAPI, read-only) |
 | 6 | Local historical-data cache pipeline |
 | 7 | IBKR broker adapter with reconnection |

@@ -82,6 +82,32 @@ def test_run_rejects_mismatched_calendars(small_config, ohlcv_factory, dip_close
         engine.run({"AAA": df_a, "BBB": df_b})
 
 
+def test_benchmark_comparison_added_when_benchmark_prices_given(
+    small_config, ohlcv_factory, dip_closes_factory
+):
+    df = ohlcv_factory(dip_closes_factory(tail_bars=9))
+    benchmark_prices = pd.Series(
+        [100.0 * (1.0002**i) for i in range(len(df))], index=df.index
+    )
+    engine = BacktestEngine(small_config, CostModel(), initial_equity=100_000.0)
+    result = engine.run({"TEST": df}, benchmark_prices=benchmark_prices)
+
+    assert "benchmark_equity" in result.equity_curve.columns
+    assert result.equity_curve["benchmark_equity"].iloc[0] == pytest.approx(100_000.0)
+    assert "benchmark_total_return_pct" in result.metrics
+    assert "benchmark_cagr_pct" in result.metrics
+    assert result.metrics["alpha_cagr_pct"] == pytest.approx(
+        result.metrics["cagr_pct"] - result.metrics["benchmark_cagr_pct"]
+    )
+
+
+def test_no_benchmark_columns_when_benchmark_not_given(small_config, ohlcv_factory):
+    df = ohlcv_factory([100.0 + i for i in range(60)])
+    result = BacktestEngine(small_config).run({"TEST": df})
+    assert "benchmark_equity" not in result.equity_curve.columns
+    assert "benchmark_cagr_pct" not in result.metrics
+
+
 def test_repeat_run_determinism(small_config, ohlcv_factory, dip_closes_factory):
     df = ohlcv_factory(dip_closes_factory(tail_bars=9))
 
