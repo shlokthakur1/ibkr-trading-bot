@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'" />
+<title>ibkr-trading-bot — dashboard</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --page:           #f9f9f7;
+    --surface-1:      #fcfcfb;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --gridline:       #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series-strategy: #2a78d6;
+    --series-benchmark: #eb6834;
+    --good:           #0ca30c;
+    --critical:       #d03b3b;
+    --good-text:      #006300;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .viz-root {
+      color-scheme: dark;
+      --page:           #0d0d0d;
+      --surface-1:      #1a1a19;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --gridline:       #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series-strategy: #3987e5;
+      --series-benchmark: #d95926;
+      --good:           #0ca30c;
+      --critical:       #e66767;
+      --good-text:      #0ca30c;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 64px; }
+
+  header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 20px; }
+  header.top h1 { font-size: 20px; margin: 0; }
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .badge {
+    font-size: 12px; color: var(--text-secondary); background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px;
+  }
+  .badge.mode { text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 20px;
+  }
+  .card h2 { font-size: 14px; margin: 0 0 14px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; }
+  .kpi { display: flex; flex-direction: column; gap: 4px; }
+  .kpi .label { font-size: 12px; color: var(--text-secondary); }
+  .kpi .value { font-size: 26px; font-weight: 600; }
+  .kpi .delta { font-size: 12px; font-weight: 600; }
+  .kpi .delta.up { color: var(--good-text); }
+  .kpi .delta.down { color: var(--critical); }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 6px; font-size: 12px; color: var(--text-secondary); }
+  .legend .key { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  svg.chart { width: 100%; height: 280px; display: block; overflow: visible; }
+  svg.chart .gridline { stroke: var(--gridline); stroke-width: 1; }
+  svg.chart .axis-text { fill: var(--text-muted); font-size: 11px; }
+  svg.chart .line-strategy { fill: none; stroke: var(--series-strategy); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  svg.chart .line-benchmark { fill: none; stroke: var(--series-benchmark); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  svg.chart .hover-line { stroke: var(--baseline); stroke-width: 1; }
+  .tooltip {
+    position: absolute; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 10px; font-size: 12px; color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    display: none; white-space: nowrap;
+  }
+  .chart-wrap { position: relative; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--gridline); }
+  th { color: var(--text-secondary); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.pnl-pos { color: var(--good-text); }
+  td.pnl-neg { color: var(--critical); }
+  .empty-state { color: var(--text-muted); font-size: 13px; padding: 12px 0; }
+
+  .sector-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font-size: 12px; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px;
+    color: var(--text-secondary); background: var(--page);
+  }
+  .chip b { color: var(--text-primary); }
+
+  footer.methodology { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  footer.methodology h2 { color: var(--text-secondary); }
+</style>
+</head>
+<body class="viz-root">
+<div class="wrap">
+  <header class="top">
+    <h1>ibkr-trading-bot — backtest dashboard</h1>
+    <div class="badge-row" id="status-badges">
+      <span class="badge mode">loading…</span>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>Performance</h2>
+    <div class="kpi-grid" id="kpi-grid"></div>
+  </section>
+
+  <section class="card">
+    <h2>Equity curve</h2>
+    <div class="legend" id="chart-legend"></div>
+    <div class="chart-wrap">
+      <svg class="chart" id="equity-chart" viewBox="0 0 960 280" preserveAspectRatio="none"></svg>
+      <div class="tooltip" id="chart-tooltip"></div>
+    </div>
+  </section>
+
+  <section class="card" id="pending-signals-card" style="display:none">
+    <h2>Pending signals (fired on the last available bar — not yet filled)</h2>
+    <div id="pending-signals-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>Trades</h2>
+    <div id="trades-table"></div>
+  </section>
+
+  <section class="card">
+    <h2>Universe</h2>
+    <div class="sector-chips" id="universe-chips"></div>
+  </section>
+
+  <footer class="methodology card">
+    <h2>Methodology &amp; limitations</h2>
+    <p>
+      Costs assume 8bps commission ($6 AUD minimum per order) and 10bps adverse slippage
+      (~36bps round-trip) — a stated assumption, not a measurement; recalibrate against real
+      paper-trading fills once they exist. Entries fill at next-bar-open; stop-loss/take-profit
+      are detected against each bar's high/low range (stop wins a same-bar tie). The universe is
+      a hand-curated, sector-diversified static list — it carries survivorship bias (no
+      later-delisted names) and is reviewed manually on a quarterly cadence, not automated. This
+      page is local-only and read-only: no route here can place, cancel, or modify an order.
+    </p>
+  </footer>
+</div>
+
+<script>
+const fmt = {
+  pct: (v, d = 1) => v === null || v === undefined || Number.isNaN(v) ? '—' : `${v.toFixed(d)}%`,
+  num: (v, d = 2) => v === null || v === undefined || Number.isNaN(v) ? '—' : v.toFixed(d),
+  money: (v) => v === null || v === undefined ? '—' : `$${v.toLocaleString(undefined, {maximumFractionDigits: 0})}`,
+  int: (v) => v === null || v === undefined ? '—' : v.toLocaleString(),
+};
+
+async function getJSON(path) {
+  const res = await fetch(path);
+  if (!res.ok) return null;
+  return res.json();
+}
+
+function kpiTile(label, value, delta) {
+  const deltaHtml = delta ? `<div class="delta ${delta.up ? 'up' : 'down'}">${delta.up ? '▲' : '▼'} ${delta.text}</div>` : '';
+  return `<div class="kpi"><div class="label">${label}</div><div class="value">${value}</div>${deltaHtml}</div>`;
+}
+
+function renderStatus(status) {
+  const el = document.getElementById('status-badges');
+  if (!status) { el.innerHTML = '<span class="badge">no backtest run yet</span>'; return; }
+  const generated = new Date(status.generated_at).toLocaleString();
+  el.innerHTML = `
+    <span class="badge mode">${status.mode}</span>
+    <span class="badge">${status.symbols.length} symbols</span>
+    <span class="badge">${status.data_period.start} → ${status.data_period.end}</span>
+    <span class="badge">generated ${generated}</span>
+    <span class="badge" title="${status.config_hash}">config ${status.config_hash.slice(7, 15)}</span>
+  `;
+}
+
+function renderKpis(metrics) {
+  const el = document.getElementById('kpi-grid');
+  if (!metrics) { el.innerHTML = '<div class="empty-state">No metrics yet — run a backtest and export it.</div>'; return; }
+  const alpha = metrics.alpha_cagr_pct;
+  const tiles = [
+    kpiTile('Total return', fmt.pct(metrics.total_return_pct), { up: metrics.total_return_pct >= 0, text: metrics.total_return_pct >= 0 ? 'positive' : 'negative' }),
+    kpiTile('CAGR', fmt.pct(metrics.cagr_pct)),
+    kpiTile('Sharpe', fmt.num(metrics.sharpe)),
+    kpiTile('Sortino', fmt.num(metrics.sortino)),
+    kpiTile('Max drawdown', fmt.pct(metrics.max_drawdown_pct)),
+    kpiTile('Win rate', fmt.pct(metrics.win_rate_pct)),
+    kpiTile('Profit factor', fmt.num(metrics.profit_factor)),
+    kpiTile('Trades', fmt.int(metrics.num_trades)),
+    kpiTile('Final equity', fmt.money(metrics.final_equity)),
+  ];
+  if (alpha !== undefined && alpha !== null) {
+    tiles.push(kpiTile('Alpha vs benchmark (CAGR)', fmt.pct(alpha), { up: alpha >= 0, text: alpha >= 0 ? 'outperforming' : 'underperforming' }));
+  }
+  el.innerHTML = tiles.join('');
+}
+
+function renderChart(equityCurve) {
+  const svg = document.getElementById('equity-chart');
+  const legend = document.getElementById('chart-legend');
+  const tooltip = document.getElementById('chart-tooltip');
+  if (!equityCurve || equityCurve.length === 0) {
+    svg.innerHTML = '';
+    legend.innerHTML = '';
+    document.querySelector('.chart-wrap').insertAdjacentHTML('beforeend', '');
+    document.getElementById('equity-chart').outerHTML = '<div class="empty-state">No equity curve yet — run a backtest and export it.</div>';
+    return;
+  }
+
+  const hasBenchmark = equityCurve.some(r => r.benchmark_equity !== undefined && r.benchmark_equity !== null);
+  legend.innerHTML = `
+    <span class="key"><span class="swatch" style="background:var(--series-strategy)"></span>Strategy</span>
+    ${hasBenchmark ? '<span class="key"><span class="swatch" style="background:var(--series-benchmark)"></span>Benchmark</span>' : ''}
+  `;
+
+  const W = 960, H = 280, padL = 50, padB = 24, padT = 10, padR = 10;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+
+  const values = equityCurve.map(r => r.equity);
+  const benchValues = hasBenchmark ? equityCurve.map(r => r.benchmark_equity).filter(v => v !== null && v !== undefined) : [];
+  const allValues = values.concat(benchValues);
+  const yMin = Math.min(...allValues), yMax = Math.max(...allValues);
+  const yPad = (yMax - yMin) * 0.08 || yMax * 0.05 || 1;
+  const y0 = yMin - yPad, y1 = yMax + yPad;
+
+  const xFor = (i) => padL + (i / (equityCurve.length - 1 || 1)) * plotW;
+  const yFor = (v) => padT + (1 - (v - y0) / (y1 - y0)) * plotH;
+
+  const gridLines = [];
+  const ticks = 4;
+  for (let t = 0; t <= ticks; t++) {
+    const v = y0 + (t / ticks) * (y1 - y0);
+    const yy = yFor(v);
+    gridLines.push(`<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" />`);
+    gridLines.push(`<text class="axis-text" x="4" y="${(yy + 3).toFixed(1)}">${Math.round(v).toLocaleString()}</text>`);
+  }
+
+  const path = (getter) => equityCurve.map((r, i) => {
+    const v = getter(r);
+    if (v === null || v === undefined) return null;
+    return `${i === 0 ? 'M' : 'L'} ${xFor(i).toFixed(2)} ${yFor(v).toFixed(2)}`;
+  }).filter(Boolean).join(' ');
+
+  const strategyPath = path(r => r.equity);
+  const benchmarkPath = hasBenchmark ? path(r => r.benchmark_equity) : '';
+
+  // Sparse x-axis date labels (start, ~mid, end).
+  const labelIdxs = [0, Math.floor((equityCurve.length - 1) / 2), equityCurve.length - 1];
+  const xLabels = [...new Set(labelIdxs)].map(i =>
+    `<text class="axis-text" x="${xFor(i).toFixed(1)}" y="${H - 4}" text-anchor="${i === 0 ? 'start' : i === equityCurve.length - 1 ? 'end' : 'middle'}">${equityCurve[i].date}</text>`
+  ).join('');
+
+  svg.innerHTML = `
+    ${gridLines.join('')}
+    ${xLabels}
+    ${benchmarkPath ? `<path class="line-benchmark" d="${benchmarkPath}" />` : ''}
+    <path class="line-strategy" d="${strategyPath}" />
+    <line id="hover-line" class="hover-line" x1="0" x2="0" y1="${padT}" y2="${H - padB}" style="display:none" />
+  `;
+
+  const hoverLine = svg.querySelector('#hover-line');
+  svg.addEventListener('mousemove', (evt) => {
+    const rect = svg.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    const mx = (evt.clientX - rect.left) * scaleX;
+    let idx = Math.round(((mx - padL) / plotW) * (equityCurve.length - 1));
+    idx = Math.max(0, Math.min(equityCurve.length - 1, idx));
+    const row = equityCurve[idx];
+    const xPix = xFor(idx);
+    hoverLine.setAttribute('x1', xPix); hoverLine.setAttribute('x2', xPix);
+    hoverLine.style.display = 'block';
+    tooltip.style.display = 'block';
+    tooltip.style.left = `${(xPix / W) * rect.width + 12}px`;
+    tooltip.style.top = `${(yFor(row.equity) / H) * rect.height - 10}px`;
+    tooltip.innerHTML = `
+      <div><b>${row.date}</b></div>
+      <div>Strategy: ${fmt.money(row.equity)}</div>
+      ${hasBenchmark && row.benchmark_equity != null ? `<div>Benchmark: ${fmt.money(row.benchmark_equity)}</div>` : ''}
+      <div>Open positions: ${row.positions_open}</div>
+    `;
+  });
+  svg.addEventListener('mouseleave', () => { hoverLine.style.display = 'none'; tooltip.style.display = 'none'; });
+}
+
+function renderTrades(trades) {
+  const el = document.getElementById('trades-table');
+  if (!trades || trades.length === 0) {
+    el.innerHTML = '<div class="empty-state">No trades in this run.</div>';
+    return;
+  }
+  const rows = trades.map(t => `
+    <tr>
+      <td>${t.symbol}</td>
+      <td>${t.entry_date}</td>
+      <td class="num">${fmt.num(t.entry_price)}</td>
+      <td>${t.exit_date}</td>
+      <td class="num">${fmt.num(t.exit_price)}</td>
+      <td>${t.exit_reason.replace('_', ' ')}</td>
+      <td class="num">${fmt.int(t.quantity)}</td>
+      <td class="num ${t.net_pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmt.money(t.net_pnl)}</td>
+      <td class="num">${fmt.num(t.r_multiple)}</td>
+    </tr>
+  `).join('');
+  el.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Symbol</th><th>Entry date</th><th class="num">Entry px</th>
+        <th>Exit date</th><th class="num">Exit px</th><th>Reason</th>
+        <th class="num">Qty</th><th class="num">Net P&amp;L</th><th class="num">R</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderPendingSignals(pending) {
+  const card = document.getElementById('pending-signals-card');
+  const el = document.getElementById('pending-signals-table');
+  if (!pending || pending.length === 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const rows = pending.map(p => `
+    <tr>
+      <td>${p.symbol}</td>
+      <td>${p.side}</td>
+      <td>${p.as_of_date}</td>
+      <td>${p.reason}</td>
+      <td class="num">${fmt.num(p.z_score)}</td>
+      <td class="num">${fmt.num(p.rsi, 1)}</td>
+    </tr>
+  `).join('');
+  el.innerHTML = `
+    <table>
+      <thead><tr><th>Symbol</th><th>Side</th><th>As of</th><th>Reason</th><th class="num">Z-score</th><th class="num">RSI</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderUniverse(universe) {
+  const el = document.getElementById('universe-chips');
+  if (!universe) { el.innerHTML = '<div class="empty-state">Universe not loaded.</div>'; return; }
+  el.innerHTML = universe.map(u => `<span class="chip"><b>${u.symbol}</b> · ${u.sector}</span>`).join('');
+}
+
+async function load() {
+  const [status, metrics, equityCurve, trades, universe, pending] = await Promise.all([
+    getJSON('/api/status'),
+    getJSON('/api/metrics'),
+    getJSON('/api/equity-curve'),
+    getJSON('/api/trades'),
+    getJSON('/api/universe'),
+    getJSON('/api/pending-signals'),
+  ]);
+  renderStatus(status);
+  renderKpis(metrics);
+  renderChart(equityCurve);
+  renderPendingSignals(pending);
+  renderTrades(trades);
+  renderUniverse(universe);
+}
+
+load();
+setInterval(load, 45000); // periodic refresh, per plan §2.10 — no websockets needed for a daily-bar strategy
+</script>
+</body>
+</html>

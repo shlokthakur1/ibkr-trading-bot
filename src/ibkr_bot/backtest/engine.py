@@ -40,6 +40,11 @@ class BacktestResult:
     symbols: list[str]
     initial_equity: float
     final_equity: float
+    pending_entries_at_end: list  # TargetPosition signaled on the final bar, never filled —
+    # the data ends before their next-bar-open exists. Not a bug: this is exactly what a
+    # paper/live run picks up and fills at the next real session's open (plan §2.6's
+    # ExecutionContext boundary) — surfaced here rather than silently dropped so a backtest run
+    # right up to "today" can still tell you what the strategy wants to do next.
 
 
 class BacktestEngine:
@@ -189,4 +194,5 @@ class BacktestEngine:
             symbols=symbols,
             initial_equity=self.initial_equity,
             final_equity=float(equity_curve["equity"].iloc[-1]),
+            pending_entries_at_end=pending_entries,
         )

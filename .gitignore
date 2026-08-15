@@ -12,6 +12,7 @@ __pycache__/
 # Runtime data (never committed — see plan §2.9/§2.10)
 data/runs/
 data/cache/
+data/dashboard/
 *.db
 *.sqlite3
 
