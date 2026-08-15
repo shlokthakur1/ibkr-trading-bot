@@ -24,6 +24,7 @@ import pandas as pd
 from ibkr_bot.strategy import StrategyConfig, StrategyEngine, config_hash
 from ibkr_bot.strategy.types import ExitReason
 
+from .benchmark import benchmark_comparison
 from .costs import CostModel
 from .fills import detect_intrabar_exit
 from .metrics import compute_metrics
@@ -52,7 +53,14 @@ class BacktestEngine:
         self.cost_model = cost_model or CostModel()
         self.initial_equity = initial_equity
 
-    def run(self, panels: dict[str, pd.DataFrame]) -> BacktestResult:
+    def run(
+        self, panels: dict[str, pd.DataFrame], benchmark_prices: pd.Series | None = None
+    ) -> BacktestResult:
+        """`benchmark_prices`, if given, is a Series of benchmark close prices (e.g. ASX200)
+        indexed by date — doesn't need to exactly match the panels' calendar bar-for-bar, but
+        must cover it (see benchmark.rebase_to_equity). Adds a `benchmark_equity` column to the
+        result's equity curve and benchmark/alpha keys to its metrics.
+        """
         symbols = sorted(panels)
         if not symbols:
             raise ValueError("panels must contain at least one symbol")
@@ -164,6 +172,14 @@ class BacktestEngine:
             self.strategy_config.max_concurrent_positions,
             positions_open=equity_curve["positions_open"],
         )
+
+        if benchmark_prices is not None:
+            benchmark_equity, benchmark_metrics = benchmark_comparison(
+                benchmark_prices, equity_curve.index, self.initial_equity
+            )
+            equity_curve["benchmark_equity"] = benchmark_equity
+            metrics.update(benchmark_metrics)
+            metrics["alpha_cagr_pct"] = metrics["cagr_pct"] - metrics["benchmark_cagr_pct"]
 
         return BacktestResult(
             equity_curve=equity_curve,
