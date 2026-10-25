@@ -38,6 +38,28 @@ def test_golden_single_symbol_trade(small_config, ohlcv_factory, dip_closes_fact
     assert result.metrics["win_rate_pct"] == pytest.approx(100.0)
 
 
+def test_signal_on_final_bar_surfaces_as_pending_not_silently_dropped(
+    small_config, ohlcv_factory, dip_closes_factory
+):
+    """A real, useful case: data ends exactly on the bar an entry signal fires. There's no
+    next-bar-open to fill it at, so it can never become a trade in this run — but it must show
+    up in `pending_entries_at_end`, not vanish silently (this is exactly what a paper/live run
+    picks up and fills at the next session's open).
+    """
+    closes = dip_closes_factory(tail_bars=9)
+    entry_bar_index = 33  # the crafted scenario's known entry bar (2020-02-17), see conftest
+    truncated_closes = closes[: entry_bar_index + 1]
+    df = ohlcv_factory(truncated_closes)
+
+    result = BacktestEngine(small_config, CostModel()).run({"TEST": df})
+
+    assert result.trades == []
+    assert len(result.pending_entries_at_end) == 1
+    pending = result.pending_entries_at_end[0]
+    assert pending.symbol == "TEST"
+    assert pending.side == "LONG"
+
+
 def test_no_entries_produces_flat_equity_curve_and_no_trades(small_config, ohlcv_factory):
     """A pure, unbroken uptrend never dips -> entry condition never fires -> no trades, and
     equity never moves (nothing was ever bought).
@@ -115,6 +137,7 @@ def test_repeat_run_determinism(small_config, ohlcv_factory, dip_closes_factory)
     result_2 = BacktestEngine(small_config, CostModel()).run({"TEST": df})
 
     assert result_1.trades == result_2.trades
+    assert result_1.pending_entries_at_end == result_2.pending_entries_at_end
     pd.testing.assert_frame_equal(result_1.equity_curve, result_2.equity_curve)
     assert result_1.metrics.keys() == result_2.metrics.keys()
     for key, value_1 in result_1.metrics.items():

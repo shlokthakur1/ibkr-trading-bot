@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
+  # Pushes to main run this via pages.yml, which deploys only once it passes.
+  workflow_call:
 
 jobs:
   lint-and-test:
@@ -13,8 +13,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install package (dev extras)
-        run: pip install -e ".[dev]"
+      - name: Install package (dev + dashboard extras)
+        run: pip install -e ".[dev,dashboard]"
       - name: Ruff lint
         run: ruff check .
       - name: Pytest

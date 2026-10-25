@@ -2,6 +2,14 @@
 aggregation and exchange session calendars (Phase 8).
 """
 
+from .historical import fetch_daily_bars, fetch_universe_daily_bars, load_cached_daily_bars
 from .universe import Universe, UniverseEntry, load_universe
 
-__all__ = ["Universe", "UniverseEntry", "load_universe"]
+__all__ = [
+    "Universe",
+    "UniverseEntry",
+    "load_universe",
+    "fetch_daily_bars",
+    "fetch_universe_daily_bars",
+    "load_cached_daily_bars",
+]
