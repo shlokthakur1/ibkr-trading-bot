@@ -62,6 +62,17 @@ Chart.js-free hand-rolled SVG with a hover tooltip), any pending unfilled signal
 run, and the full trade log. It polls its own API every 45s — re-exporting a fresh run's results
 to the same `DASHBOARD_DATA_DIR` (default `data/dashboard/`) is all that's needed to update it.
 
+### Public copy (GitHub Pages)
+
+**Live:** https://shlokthakur1.github.io/ibkr-trading-bot/
+
+The same page, published as a static snapshot of the run committed under `published/dashboard/`
+— plain files with no server behind them. Every push to `main` runs lint + tests and, only if
+they pass, rebuilds and deploys it (`.github/workflows/pages.yml`, which builds with
+`python -m ibkr_bot.dashboard.build_site`). `data/dashboard/` stays gitignored; committing to
+`published/dashboard/` is the deliberate "this run is public" step. To publish a new run, export
+it there (or copy `data/dashboard/*.json` across), commit, and push to `main`.
+
 ## Running a real backtest (IBKR historical data)
 
 `src/ibkr_bot/data/historical.py` is a first, deliberately minimal pass at Phase 6 — a single
@@ -112,7 +123,8 @@ src/ibkr_bot/backtest/   cost model, fill simulation, metrics (Phase 3 — built
 src/ibkr_bot/execution/  mode-specific ExecutionContext sinks (Phase 7+)
 src/ibkr_bot/broker/     BrokerAdapter ABC + IBKR implementation (Phase 7)
 src/ibkr_bot/risk/       SafetyGuard pre-flight + per-order checks (Phase 9)
-src/ibkr_bot/dashboard/  read-only local FastAPI dashboard (Phase 5)
+src/ibkr_bot/dashboard/  read-only local FastAPI dashboard (Phase 5) + static Pages build
+published/dashboard/     the exported run deployed to GitHub Pages
 src/ibkr_bot/runner/     backtest/paper/live CLI entrypoints
 config/universe/         curated ASX large-cap universe YAML
 tests/unit/              mirrors src/ibkr_bot/ — indicator/determinism/golden-file tests
@@ -133,7 +145,7 @@ tests/unit/              mirrors src/ibkr_bot/ — indicator/determinism/golden-
 | 8 | Paper execution context + paper runner |
 | 9 | SafetyGuard / risk layer |
 | 10 | Live runner (explicit manual sign-off before first real use) |
-| 11 (stretch) | Optional remote dashboard access |
+| 11 (stretch) | Optional remote dashboard access — **done** as a static GitHub Pages snapshot |
 
 Each phase ships as its own small, reviewable change.
 
@@ -143,5 +155,6 @@ Live trading (Phase 10+) will refuse to start without two independent, explicit 
 a paper/live port sanity check, an account-ID cross-check, and a full pre-flight checklist — see
 the plan's `SafetyGuard` design. Nothing in this repo places real orders yet.
 
-The dashboard (Phase 5+) is local-only, read-only (GET routes only), and never imports the
-broker/order-placement code paths.
+The dashboard (Phase 5+) is read-only (GET routes only) and never imports the
+broker/order-placement code paths; its public GitHub Pages copy is static files with no server
+behind them.

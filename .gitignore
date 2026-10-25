@@ -29,3 +29,4 @@ htmlcov/
 *.egg-info/
 build/
 dist/
+_site/

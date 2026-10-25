@@ -15,6 +15,18 @@ from fastapi import APIRouter, HTTPException
 
 router = APIRouter(prefix="/api")
 
+# Route -> the file export_dashboard.py writes for it. The single source of truth for both this
+# API and the static GitHub Pages build (build_site.py), so the two can never serve different
+# things under the same path.
+ROUTE_FILES = {
+    "status": "status.json",
+    "metrics": "metrics.json",
+    "equity-curve": "equity_curve.json",
+    "trades": "trades.json",
+    "universe": "universe.json",
+    "pending-signals": "pending_signals.json",
+}
+
 
 def _data_dir() -> Path:
     return Path(os.environ.get("DASHBOARD_DATA_DIR", "data/dashboard"))
@@ -30,31 +42,12 @@ def _read_json(name: str):
     return json.loads(path.read_text())
 
 
-@router.get("/status")
-def get_status():
-    return _read_json("status.json")
+def _endpoint_for(name: str):
+    def endpoint():
+        return _read_json(name)
+
+    return endpoint
 
 
-@router.get("/metrics")
-def get_metrics():
-    return _read_json("metrics.json")
-
-
-@router.get("/equity-curve")
-def get_equity_curve():
-    return _read_json("equity_curve.json")
-
-
-@router.get("/trades")
-def get_trades():
-    return _read_json("trades.json")
-
-
-@router.get("/universe")
-def get_universe():
-    return _read_json("universe.json")
-
-
-@router.get("/pending-signals")
-def get_pending_signals():
-    return _read_json("pending_signals.json")
+for _route, _name in ROUTE_FILES.items():
+    router.add_api_route(f"/{_route}", _endpoint_for(_name), methods=["GET"], name=_route)

@@ -156,7 +156,7 @@
       are detected against each bar's high/low range (stop wins a same-bar tie). The universe is
       a hand-curated, sector-diversified static list — it carries survivorship bias (no
       later-delisted names) and is reviewed manually on a quarterly cadence, not automated. This
-      page is local-only and read-only: no route here can place, cancel, or modify an order.
+      page is read-only: nothing here can place, cancel, or modify an order.
     </p>
   </footer>
 </div>
@@ -362,13 +362,15 @@ function renderUniverse(universe) {
 }
 
 async function load() {
+  // Relative paths (no leading slash): the same file is served at / by uvicorn and under
+  // /ibkr-trading-bot/ by GitHub Pages, where build_site.py writes these as static files.
   const [status, metrics, equityCurve, trades, universe, pending] = await Promise.all([
-    getJSON('/api/status'),
-    getJSON('/api/metrics'),
-    getJSON('/api/equity-curve'),
-    getJSON('/api/trades'),
-    getJSON('/api/universe'),
-    getJSON('/api/pending-signals'),
+    getJSON('api/status'),
+    getJSON('api/metrics'),
+    getJSON('api/equity-curve'),
+    getJSON('api/trades'),
+    getJSON('api/universe'),
+    getJSON('api/pending-signals'),
   ]);
   renderStatus(status);
   renderKpis(metrics);

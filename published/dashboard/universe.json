@@ -1,0 +1,137 @@
+[
+  {
+    "symbol": "CBA",
+    "sector": "Financials",
+    "name": "Commonwealth Bank of Australia"
+  },
+  {
+    "symbol": "WBC",
+    "sector": "Financials",
+    "name": "Westpac Banking Corporation"
+  },
+  {
+    "symbol": "NAB",
+    "sector": "Financials",
+    "name": "National Australia Bank"
+  },
+  {
+    "symbol": "ANZ",
+    "sector": "Financials",
+    "name": "ANZ Group Holdings"
+  },
+  {
+    "symbol": "MQG",
+    "sector": "Financials",
+    "name": "Macquarie Group"
+  },
+  {
+    "symbol": "BHP",
+    "sector": "Materials",
+    "name": "BHP Group"
+  },
+  {
+    "symbol": "RIO",
+    "sector": "Materials",
+    "name": "Rio Tinto"
+  },
+  {
+    "symbol": "FMG",
+    "sector": "Materials",
+    "name": "Fortescue"
+  },
+  {
+    "symbol": "S32",
+    "sector": "Materials",
+    "name": "South32"
+  },
+  {
+    "symbol": "CSL",
+    "sector": "Healthcare",
+    "name": "CSL Limited"
+  },
+  {
+    "symbol": "RMD",
+    "sector": "Healthcare",
+    "name": "ResMed"
+  },
+  {
+    "symbol": "COH",
+    "sector": "Healthcare",
+    "name": "Cochlear"
+  },
+  {
+    "symbol": "SHL",
+    "sector": "Healthcare",
+    "name": "Sonic Healthcare"
+  },
+  {
+    "symbol": "WOW",
+    "sector": "Consumer Staples",
+    "name": "Woolworths Group"
+  },
+  {
+    "symbol": "COL",
+    "sector": "Consumer Staples",
+    "name": "Coles Group"
+  },
+  {
+    "symbol": "EDV",
+    "sector": "Consumer Staples",
+    "name": "Endeavour Group"
+  },
+  {
+    "symbol": "WES",
+    "sector": "Consumer Discretionary",
+    "name": "Wesfarmers"
+  },
+  {
+    "symbol": "JBH",
+    "sector": "Consumer Discretionary",
+    "name": "JB Hi-Fi"
+  },
+  {
+    "symbol": "TCL",
+    "sector": "Industrials",
+    "name": "Transurban Group"
+  },
+  {
+    "symbol": "BXB",
+    "sector": "Industrials",
+    "name": "Brambles"
+  },
+  {
+    "symbol": "WDS",
+    "sector": "Energy",
+    "name": "Woodside Energy Group"
+  },
+  {
+    "symbol": "STO",
+    "sector": "Energy",
+    "name": "Santos"
+  },
+  {
+    "symbol": "TLS",
+    "sector": "Telecommunications",
+    "name": "Telstra Group"
+  },
+  {
+    "symbol": "GMG",
+    "sector": "Real Estate",
+    "name": "Goodman Group"
+  },
+  {
+    "symbol": "SCG",
+    "sector": "Real Estate",
+    "name": "Scentre Group"
+  },
+  {
+    "symbol": "AGL",
+    "sector": "Utilities",
+    "name": "AGL Energy"
+  },
+  {
+    "symbol": "ORG",
+    "sector": "Utilities",
+    "name": "Origin Energy"
+  }
+]

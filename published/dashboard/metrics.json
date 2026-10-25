@@ -1,0 +1,19 @@
+{
+  "total_return_pct": -2.7627443040000643,
+  "cagr_pct": -1.3883118748749146,
+  "annualized_vol_pct": 3.910129628532513,
+  "sharpe": -0.33793670134156206,
+  "sortino": -0.30431328926101225,
+  "max_drawdown_pct": -6.8905198338076845,
+  "win_rate_pct": 38.80597014925373,
+  "profit_factor": 0.8442728206495504,
+  "avg_r_multiple": -0.07792299899835656,
+  "num_trades": 67,
+  "exposure_pct": 22.677865612648223,
+  "benchmark_total_return_pct": 14.862385321100913,
+  "benchmark_cagr_pct": 7.159168107308389,
+  "alpha_cagr_pct": -8.547479982183305,
+  "config_hash": "sha256:9cfbcf8c2caeb49ace0941fe7f084a80e11ab8b2e9821edf87eed65e618f3545",
+  "initial_equity": 100000.0,
+  "final_equity": 97237.25569599993
+}

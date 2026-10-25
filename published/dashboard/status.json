@@ -1,0 +1,39 @@
+{
+  "run_id": "real-asx-2yr-2026-08-15",
+  "mode": "backtest",
+  "generated_at": "2026-08-15T15:46:28.180188+10:00",
+  "config_hash": "sha256:9cfbcf8c2caeb49ace0941fe7f084a80e11ab8b2e9821edf87eed65e618f3545",
+  "symbols": [
+    "AGL",
+    "ANZ",
+    "BHP",
+    "BXB",
+    "CBA",
+    "COH",
+    "COL",
+    "CSL",
+    "EDV",
+    "FMG",
+    "GMG",
+    "JBH",
+    "MQG",
+    "NAB",
+    "ORG",
+    "RIO",
+    "RMD",
+    "S32",
+    "SCG",
+    "SHL",
+    "STO",
+    "TCL",
+    "TLS",
+    "WBC",
+    "WDS",
+    "WES",
+    "WOW"
+  ],
+  "data_period": {
+    "start": "2024-08-15",
+    "end": "2026-08-14"
+  }
+}
